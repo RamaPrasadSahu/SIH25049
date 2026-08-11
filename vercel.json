@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/generateChatResponse",
+      "destination": "/functions/server.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
