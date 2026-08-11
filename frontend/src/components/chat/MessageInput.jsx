@@ -28,9 +28,10 @@ export const MessageInput = ({ onSendMessage, loading }) => {
     setShowSymptomForm(false);
   };
 
+  // Direct clean replacement of text without appending duplicate interim chunks
   const handleVoiceTranscription = (transcript) => {
-    if (transcript) {
-      setInputText(prev => (prev ? `${prev} ${transcript}` : transcript));
+    if (transcript && typeof transcript === 'string' && transcript.trim()) {
+      setInputText(transcript.trim());
     }
   };
 

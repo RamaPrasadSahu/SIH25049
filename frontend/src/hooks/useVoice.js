@@ -40,8 +40,8 @@ export const useVoice = (languageCode = 'od-IN') => {
     if (SpeechRecognition) {
       try {
         const recognition = new SpeechRecognition();
-        recognition.continuous = false; // Single clean sentence mode prevents infinite overwrite loops
-        recognition.interimResults = true;
+        recognition.continuous = false; // Single sentence mode prevents duplicate loops
+        recognition.interimResults = false; // Send final transcript only to avoid text repetition
 
         let speechLang = languageCode;
         if (speechLang === 'od-IN' || speechLang === 'or-IN') speechLang = 'or-IN';
@@ -49,12 +49,11 @@ export const useVoice = (languageCode = 'od-IN') => {
         recognition.lang = speechLang;
 
         recognition.onresult = (event) => {
-          let currentTranscript = '';
-          for (let i = 0; i < event.results.length; i++) {
-            currentTranscript += event.results[i][0].transcript;
-          }
-          if (currentTranscript) {
-            setRecognizedText(currentTranscript);
+          if (event.results && event.results.length > 0) {
+            const finalTranscript = event.results[0][0].transcript;
+            if (finalTranscript) {
+              setRecognizedText(finalTranscript);
+            }
           }
         };
 
