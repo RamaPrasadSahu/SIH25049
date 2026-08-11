@@ -20,30 +20,32 @@ export const useVoice = (languageCode = 'od-IN') => {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-        } catch (e) {
-          // Ignore unmount stop errors
-        }
+        } catch (e) {}
       }
     };
   }, []);
+
+  const resetRecognizedText = () => {
+    setRecognizedText('');
+  };
 
   const startRecording = async () => {
     setError(null);
     setRecognizedText('');
     setRecordingTime(0);
 
-    // 1. Try Native Webkit/Browser Speech Recognition API (Real-time live STT)
+    // 1. Try Browser Webkit Speech Recognition API
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition) {
       try {
         const recognition = new SpeechRecognition();
-        recognition.continuous = true;
+        recognition.continuous = false; // Single clean sentence mode prevents infinite overwrite loops
         recognition.interimResults = true;
 
-        // Standardize language code string for Speech Recognition
         let speechLang = languageCode;
         if (speechLang === 'od-IN' || speechLang === 'or-IN') speechLang = 'or-IN';
+        if (speechLang === 'hi-IN') speechLang = 'hi-IN';
         recognition.lang = speechLang;
 
         recognition.onresult = (event) => {
@@ -59,9 +61,7 @@ export const useVoice = (languageCode = 'od-IN') => {
         recognition.onerror = (event) => {
           console.warn('Speech recognition error:', event.error);
           if (event.error === 'not-allowed') {
-            setError('Microphone permission denied. Please allow microphone access.');
-          } else if (event.error !== 'no-speech') {
-            setError(`Voice recognition error: ${event.error}`);
+            setError('Microphone permission denied.');
           }
         };
 
@@ -79,11 +79,11 @@ export const useVoice = (languageCode = 'od-IN') => {
         }, 1000);
         return;
       } catch (err) {
-        console.warn('SpeechRecognition failed to start, attempting MediaRecorder fallback:', err);
+        console.warn('SpeechRecognition failed, using MediaRecorder fallback:', err);
       }
     }
 
-    // 2. Fallback: MediaRecorder Audio Blob Capture + Sarvam AI Cloud API
+    // 2. MediaRecorder Audio Blob Capture + Sarvam AI Cloud API
     try {
       audioChunksRef.current = [];
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -99,8 +99,6 @@ export const useVoice = (languageCode = 'od-IN') => {
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
         await processAudioBlob(audioBlob);
-
-        // Stop all audio tracks
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -112,7 +110,7 @@ export const useVoice = (languageCode = 'od-IN') => {
       }, 1000);
     } catch (err) {
       console.error('Microphone permission or recording error:', err);
-      setError('Microphone access denied or not supported by browser.');
+      setError('Microphone access denied or not supported.');
       setIsRecording(false);
     }
   };
@@ -126,17 +124,13 @@ export const useVoice = (languageCode = 'od-IN') => {
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-      } catch (e) {
-        console.warn('Error stopping SpeechRecognition:', e);
-      }
+      } catch (e) {}
     }
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       try {
         mediaRecorderRef.current.stop();
-      } catch (e) {
-        console.warn('Error stopping MediaRecorder:', e);
-      }
+      } catch (e) {}
     }
   };
 
@@ -167,7 +161,8 @@ export const useVoice = (languageCode = 'od-IN') => {
     recognizedText,
     error,
     startRecording,
-    stopRecording
+    stopRecording,
+    resetRecognizedText
   };
 };
 

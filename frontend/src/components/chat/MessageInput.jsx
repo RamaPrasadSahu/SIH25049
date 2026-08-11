@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Send, Activity } from 'lucide-react';
+import { Send, Activity, X } from 'lucide-react';
 import { VoiceRecorder } from './VoiceRecorder';
 import { LanguageContext } from '../../context/LanguageContext';
 import { SUPPORTED_LANGUAGES } from '../../utils/languages';
@@ -29,7 +29,13 @@ export const MessageInput = ({ onSendMessage, loading }) => {
   };
 
   const handleVoiceTranscription = (transcript) => {
-    setInputText(transcript);
+    if (transcript) {
+      setInputText(prev => (prev ? `${prev} ${transcript}` : transcript));
+    }
+  };
+
+  const handleClearInput = () => {
+    setInputText('');
   };
 
   const toggleSymptom = (key) => {
@@ -77,7 +83,7 @@ export const MessageInput = ({ onSendMessage, loading }) => {
           type="button"
           onClick={() => setShowSymptomForm(!showSymptomForm)}
           className="btn-icon"
-          style={{ color: showSymptomForm ? 'var(--primary-cyan)' : 'var(--text-muted)' }}
+          style={{ color: showSymptomForm ? 'var(--primary-cyan)' : 'var(--text-muted)', flexShrink: 0 }}
           title="Toggle Symptom Screening Checklist for ML Model"
         >
           <Activity size={20} />
@@ -92,12 +98,27 @@ export const MessageInput = ({ onSendMessage, loading }) => {
           disabled={loading}
         />
 
+        {/* Clear/Delete Text Button */}
+        {inputText.trim().length > 0 && (
+          <button
+            type="button"
+            onClick={handleClearInput}
+            className="btn-icon"
+            style={{ color: 'var(--text-muted)', flexShrink: 0 }}
+            title="Clear / Delete Text"
+          >
+            <X size={18} />
+          </button>
+        )}
+
         <VoiceRecorder onTranscriptionComplete={handleVoiceTranscription} languageCode={selectedLanguage} />
 
-        <button type="submit" className="btn-icon btn-send" disabled={loading || !inputText.trim()}>
+        <button type="submit" className="btn-icon btn-send" disabled={loading || !inputText.trim()} style={{ flexShrink: 0 }}>
           <Send size={18} />
         </button>
       </form>
     </div>
   );
 };
+
+export default MessageInput;

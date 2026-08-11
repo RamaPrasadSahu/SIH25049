@@ -10,14 +10,16 @@ export const VoiceRecorder = ({ onTranscriptionComplete, languageCode = 'od-IN' 
     recognizedText,
     error,
     startRecording,
-    stopRecording
+    stopRecording,
+    resetRecognizedText
   } = useVoice(languageCode);
 
   useEffect(() => {
     if (recognizedText) {
       onTranscriptionComplete(recognizedText);
+      resetRecognizedText(); // Instantly clear stored voice text so user can freely edit or delete
     }
-  }, [recognizedText, onTranscriptionComplete]);
+  }, [recognizedText, onTranscriptionComplete, resetRecognizedText]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
