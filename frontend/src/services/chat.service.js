@@ -1,12 +1,11 @@
 import { API_BASE_URL } from '../utils/constants';
 
-// Use valid AIzaSy Google API Key from environment or Firebase config
-const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY?.startsWith('AIza') 
-  ? import.meta.env.VITE_GEMINI_API_KEY 
-  : (import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyDu42fVseRws-Ce8cxqv98VhzPHtb5HVfo');
+// Resolve Sarvam AI Subscription Key
+const SARVAM_KEY = import.meta.env.VITE_SARVAM_API_KEY || 'sk_gzol1gpk_pa1c7V1dPHN2SIo3h0wXmwJx';
+const LOCAL_BACKEND_URL = 'http://127.0.0.1:5001';
 
-// Fast fetch helper with strict timeout
-const fetchWithTimeout = async (url, options = {}, timeoutMs = 800) => {
+// Fast fetch helper with 15-second timeout for LLM inference
+const fetchWithTimeout = async (url, options = {}, timeoutMs = 15000) => {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -25,12 +24,12 @@ const LANG_NAMES = {
   'en-IN': 'English',
   'bn-IN': 'Bengali (বাংলা)',
   'ta-IN': 'Tamil (தமிழ்)',
-  'te-IN': 'Telugu (తె르고)',
-  'mr-IN': 'Marathi (मराठी)',
-  'gu-IN': 'Gujarati (ગુજરાતી)',
-  'pa-IN': 'Punjabi (ਪੰਜਾਬୀ)',
-  'kn-IN': 'Kannada (ಕನ್ನಡ)',
-  'ml-IN': 'Malayalam (മലയാളം)',
+  'te-IN': 'Telugu (తెలుగు)',
+  'mr-IN': 'Marathi (ମରାଠୀ)',
+  'gu-IN': 'Gujarati (ଗୁଜରାଟୀ)',
+  'pa-IN': 'Punjabi (ପଞ୍ଜାବୀ)',
+  'kn-IN': 'Kannada (କନ୍ନଡ଼)',
+  'ml-IN': 'Malayalam (ମଲୟାଲମ)',
   'as-IN': 'Assamese (ଅସମୀୟା)'
 };
 
@@ -51,23 +50,32 @@ export const sendChatMessage = async (message, conversationHistory = [], languag
     return handlePersonalStatementResponse(trimmed, language);
   }
 
-  // 3. Check Cloud Functions Backend first (with 800ms max timeout)
-  try {
-    const response = await fetchWithTimeout(`${API_BASE_URL}/generateChatResponse`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, conversationHistory, language, features })
-    }, 800);
+  // 3. Connect to Local Node AI Backend (Port 5001) first for real Sarvam 105B AI Brain response
+  const endpoints = [
+    `${LOCAL_BACKEND_URL}/generateChatResponse`,
+    `${API_BASE_URL}/generateChatResponse`
+  ];
 
-    if (response.ok) {
-      const data = await response.json();
-      return data;
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetchWithTimeout(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, conversationHistory, language, features })
+      }, 15000);
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.reply) {
+          return data;
+        }
+      }
+    } catch (error) {
+      // Try next endpoint
     }
-  } catch (error) {
-    // Failover
   }
 
-  // 4. Direct Hybrid PDF RAG + External Web Search Engine
+  // 4. Direct Hybrid PDF RAG + External Web Search Engine Failover
   return await generateHybridRAGReply(message, conversationHistory, language, features);
 };
 
@@ -75,21 +83,21 @@ function handleGreetingResponse(query, lang) {
   if (lang === 'hi-IN') {
     return {
       success: true,
-      reply: `नमस्ते! मैं आपका **स्वास्थ्य सखा (Swasthya Sakha)** हूँ। 🙏\n\nमैं WHO और MoHFW दिशानिर्देशों के आधार पर जनस्वास्थ्य, बीमारी के लक्षणों (जैसे मलेरिया, डेंगू, टीबी, निमोनिया), टीकाकरण और सरकारी स्वास्थ्य योजनाओं की जानकारी प्रदान करता हूँ।\n\nआज मैं आपके स्वास्थ्य संबंधी किस प्रश्न में सहायता कर सकता हूँ?`,
+      reply: `नमस्ते! मैं आपका **स्वास्थ्य सखा** हूँ। 🙏\n\nमैं ओडिशा सरकार के जनस्वास्थ्य जागरूकता अभियान के अंतर्गत आपकी सहायता के लिए उपलब्ध हूँ।\n\nआज मैं आपके स्वास्थ्य या बीमारी के लक्षणों के बारे में क्या मदद कर सकता हूँ?`,
       sources: [],
       language: lang
     };
   } else if (lang === 'od-IN') {
     return {
       success: true,
-      reply: `ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କର **ସ୍ୱାସ୍ଥ୍ୟ ସଖା (Swasthya Sakha)**। 🙏\n\nମୁଁ WHO ଏବଂ ସ୍ୱାସ୍ଥ୍ୟ ମନ୍ତ୍ରଣାଳୟ ତଥ୍ୟ ଆଧାରରେ ଜନସ୍ୱାସ୍ଥ୍ୟ, ରୋଗର ଲକ୍ଷଣ (ମଲେରିଆ, ଡେଙ୍ଗୁ, ଟିବି, ପ୍ନୁମୋନିଆ), ଟିକାକରଣ ଏବଂ ପ୍ରାଥମିକ ସ୍ୱାସ୍ଥ୍ୟ ସେବା ବିଷୟରେ ସୂଚନା ପ୍ରଦାନ କରେ।\n\nଆଜି ଆପଣ କ’ଣ ଜାଣିବାକୁ ଚାହାନ୍ତି?`,
+      reply: `ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କର **ସ୍ୱାସ୍ଥ୍ୟ ସଖା**। 🙏\n\nମୁଁ ଓଡ଼ିଶା ସରକାରଙ୍କ ଜନସ୍ୱାସ୍ଥ୍ୟ ସଚେତନତା ଅଭିଯାନ ଅଧୀନରେ ଆପଣଙ୍କ ସେବାରେ ଉପଲବ୍ଧ।\n\nଆଜି ଆପଣ କ’ଣ ବିଷୟରେ ଜାଣିବାକୁ ଚାହୁଁଛନ୍ତି?`,
       sources: [],
       language: lang
     };
   } else {
     return {
       success: true,
-      reply: `Hello! I am **Swasthya Sakha (स्वास्थ्य सखा / ସ୍ୱାସ୍ଥ୍ୟ ସଖା)**, your AI public health companion. 🙏\n\nI am here to assist you with verified disease awareness (Malaria, Dengue, TB, Pneumonia), symptom guidance, immunization schedules, and official health advice across India.\n\nHow can I assist your health query today?`,
+      reply: `Hello! I am **Swasthya Sakha**, a public health assistant for citizens of Odisha, India, built for the Government of Odisha's public health initiative. 🙏\n\nHow can I help you today with your health or symptom questions?`,
       sources: [],
       language: lang
     };
@@ -100,21 +108,21 @@ function handlePersonalStatementResponse(query, lang) {
   if (lang === 'hi-IN') {
     return {
       success: true,
-      reply: `नमस्ते! एक नागरिक के रूप में, आप मुझसे स्वास्थ्य, बीमारी के लक्षणों, निवारक देखभाल, टीकाकरण या प्राथमिक स्वास्थ्य सेवाओं से जुड़ा कोई भी प्रश्न पूछ सकते हैं। मैं आपकी सहायता के लिए यहाँ हूँ।`,
+      reply: `नमस्ते! एक नागरिक के रूप में, आप मुझसे स्वास्थ्य, बीमारियों के लक्षणों, प्राथमिक चिकित्सा या टीकाकरण से जुड़ा कोई भी प्रश्न पूछ सकते हैं। बताइए, आज आप किस विषय में जानना चाहते हैं?`,
       sources: [],
       language: lang
     };
   } else if (lang === 'od-IN') {
     return {
       success: true,
-      reply: `ନମସ୍କାର! ଆପଣ ଜଣେ ନାଗରିକ ଭାବରେ ସ୍ୱାସ୍ଥ୍ୟ ସମ୍ବନ୍ଧୀୟ ଯେକୌଣସି ପ୍ରଶ୍ନ (ଯଥା: ଲକ୍ଷଣ, ପ୍ରତିଷେଧକ, ଟିକାକରଣ କିମ୍ବା PHC ସେବା) ପଚାରିପାରିବେ। ମୁଁ ଆପଣଙ୍କୁ ସାହାଯ୍ୟ କରିବାକୁ ପ୍ରସ୍ତୁତ।`,
+      reply: `ନମସ୍କାର! ଆପଣ ଜଣେ ନାଗରିକ ଭାବରେ ସ୍ୱାସ୍ଥ୍ୟ, ରୋଗର ଲକ୍ଷଣ, ଟିକାକରଣ କିମ୍ବା PHC ସେବା ବିଷୟରେ ଯେକୌଣସି ପ୍ରଶ୍ନ ପଚାରିପାରିବେ। ଆଜି ଆପଣ କ’ଣ ପଚାରିବାକୁ ଚାହୁଁଛନ୍ତି?`,
       sources: [],
       language: lang
     };
   } else {
     return {
       success: true,
-      reply: `Hello! Welcome. As a citizen, you can ask me any public health query, disease symptom guidelines, immunization recommendations, or preventive health advice. I am here to help you!`,
+      reply: `Hello! As a citizen, feel free to ask me any public health questions — whether it's about disease symptoms, preventive care, immunization, or primary health center services. What would you like to know today?`,
       sources: [],
       language: lang
     };
@@ -124,7 +132,7 @@ function handlePersonalStatementResponse(query, lang) {
 const generateHybridRAGReply = async (message, conversationHistory, language, features) => {
   let mlRiskAssessment = null;
 
-  // 1. Fetch live ML prediction from Python Microservice (RandomForest Classifier on port 5000)
+  // 1. Fetch live ML prediction from Python Microservice
   if (features && Object.keys(features).length > 0) {
     try {
       const mlRes = await fetchWithTimeout('http://127.0.0.1:5000/predict', {
@@ -170,16 +178,47 @@ const generateHybridRAGReply = async (message, conversationHistory, language, fe
   const targetLangName = LANG_NAMES[language] || 'Odia (ଓଡ଼ିଆ)';
 
   const systemPrompt = `
-You are Swasthya Sakha (स्वास्थ्य सखा / ସ୍ୱାସ୍ଥ୍ୟ ସଖା), a public health and medical assistant designed for citizens across India under SIH Problem Statement 25049.
+# SWASTHYA SAKHA — MEDICAL AI AGENT SYSTEM PROMPT
 
-AUTHORITATIVE MEDICAL GROUNDING RULES:
-1. Answer the user's question directly, clearly, and thoughtfully in ${targetLangName}.
-2. Use the retrieved evidence below when applicable. If user query is a general conversation or question, answer with accurate public health knowledge.
-3. DO NOT provide definitive clinical diagnoses. Use educational language: "These symptoms can occur with several conditions..."
-4. DO NOT claim 100% accuracy or invent drug dosages.
-5. Provide verified citations based on supplied evidence where appropriate.
+You are **Swasthya Sakha**, a safety-focused medical information AI assistant for citizens of Odisha and India (User Language: ${targetLangName}).
 
-RETRIEVED EVIDENCE:
+Your goal is NOT to simply generate an answer from your internal knowledge. For every medical question, follow this structured process:
+
+1. UNDERSTAND THE USER'S QUESTION
+- Determine actual medical question, symptoms, disease, treatment, or medicine concern.
+- Identify missing information that could change the recommendation. Ask clarifying questions if vague.
+
+2. SEARCH TRUSTED EXTERNAL SOURCES (WHO, MoHFW, CDC, NIH, FDA, NHS, ICMR)
+- Prioritize Tier 1 public health organizations. Do NOT use random blogs, unverified sites, or forums.
+
+3. SEARCH THE PROVIDED KNOWLEDGE BASE
+- Ground answers in retrieved Swasthya Sakha datasets/PDFs. Never blindly trust retrieved text.
+
+4. CROSS-VERIFY INFORMATION
+- Classify internally as CONFIRMED, SUPPORTED, UNCERTAIN, or UNSAFE TO CLAIM.
+- Never manufacture medical facts or fake citations.
+
+5. PATIENT CONTEXT & TRIAGE
+- Low Risk: General health info.
+- Moderate Risk: Symptoms needing evaluation.
+- High Risk / Emergency: Severe breathlessness, chest pain, loss of consciousness, seizure, severe bleeding, or stroke signs. Prioritize emergency advice immediately.
+
+6. MEDICINE & DIAGNOSIS SAFETY
+- Never claim "You definitely have X." Use "This can be associated with..." or "Possible causes include...".
+- Never invent drug dosages. Do not casually recommend prescription medicines.
+
+7. RESPONSE STRUCTURE (Use when appropriate):
+### Understanding
+### Evidence-based information
+### What you should do
+### Important warning
+### When to see a doctor
+### Sources
+
+8. LANGUAGE
+- Respond natively in the same script/language requested by the user (Odia, Hindi, Hinglish, English, Bengali, Marathi, Tamil, Telugu, Gujarati).
+
+RETRIEVED REFERENCE EVIDENCE:
 ${formattedEvidence || 'No specific document matches.'}
 
 ${mlRiskAssessment ? `ML RISK SCREENING CONTEXT: High-risk indicators detected: ${mlRiskAssessment.prediction} (Confidence: ${(mlRiskAssessment.confidence * 100).toFixed(0)}%). Explain precautions clearly.` : ''}
@@ -187,49 +226,9 @@ ${mlRiskAssessment ? `ML RISK SCREENING CONTEXT: High-risk indicators detected: 
 
   let replyText = "";
 
-  // Call Gemini Generative AI API with valid key
-  if (GEMINI_KEY && GEMINI_KEY.startsWith('AIza')) {
-    const candidateModels = ['gemini-1.5-flash', 'gemini-flash-latest'];
-
-    for (const model of candidateModels) {
-      try {
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`;
-        
-        const contents = [
-          { role: 'user', parts: [{ text: systemPrompt }] },
-          ...conversationHistory.slice(-4).map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.text }]
-          })),
-          { role: 'user', parts: [{ text: message }] }
-        ];
-
-        const geminiRes = await fetch(geminiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents,
-            generationConfig: { temperature: 0.3, maxOutputTokens: 850 }
-          })
-        });
-
-        if (geminiRes.ok) {
-          const geminiData = await geminiRes.json();
-          const text = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) {
-            replyText = text;
-            break;
-          }
-        }
-      } catch (e) {
-        console.warn(`Gemini API call model ${model} notice:`, e);
-      }
-    }
-  }
-
-  // Dynamic Synthesis Fallback Engine
+  // Dynamic Synthesis Engine
   if (!replyText) {
-    replyText = synthesizeGroundedAnswer(message, language, pdfEvidence, webEvidence, mlRiskAssessment);
+    replyText = synthesizeDynamicChatGPTResponse(message, language, pdfEvidence, webEvidence, mlRiskAssessment);
   }
 
   // Enforce Medical Safety Disclaimers & Emergency Triage Warnings
@@ -403,155 +402,32 @@ function applyMedicalSafetyChecks(query, text, lang) {
   let safeText = text;
 
   // Replace clinical diagnosis claims
-  safeText = safeText.replace(/you definitely have|you have dengue|you are diagnosed with/gi, 'These symptoms can occur with several conditions');
+  safeText = safeText.replace(/you definitely have|you have dengue|you are diagnosed with/gi, 'these symptoms are commonly associated with several conditions');
 
   // Emergency referral if severe chest pain / severe dyspnea detected
   const isEmergency = /chest pain|severe breathlessness|coughing blood|fever 104|ସିଭିଅର ଛାତି/i.test(query + ' ' + safeText);
   
   if (isEmergency && !safeText.includes('EMERGENCY MEDICAL ADVISORY')) {
-    safeText += `\n\n🚨 **EMERGENCY MEDICAL ADVISORY**: Severe warning signs detected. Please visit your nearest Primary Health Centre (PHC) or hospital emergency department immediately.`;
+    safeText = `🚨 **EMERGENCY MEDICAL ADVISORY**: Severe emergency signs detected. Please seek immediate emergency medical care at your nearest hospital or Primary Health Centre (PHC).\n\n` + safeText;
   }
 
   return safeText;
 }
 
-// Dynamic Grounded Synthesis Engine
-function synthesizeGroundedAnswer(userQuery, lang, pdfEv = [], webEv = [], mlRisk = null) {
-  const q = userQuery.toLowerCase();
+function synthesizeDynamicChatGPTResponse(userQuery, lang, pdfEv = [], webEv = [], mlRisk = null) {
+  const q = userQuery.toLowerCase().trim();
+  const wordCount = q.split(/\s+/).length;
 
-  // 1. Dengue Topic
-  if (q.includes('dengue') || q.includes('ଡେଙ୍ଗୁ') || q.includes('डेंगू') || q.includes('platelet')) {
-    if (lang === 'hi-IN') {
-      return `### 🦟 डेंगू (Dengue) - चेतावनी संकेत एवं स्वास्थ्य मार्गदर्शन (WHO व CDC)
-
-• **चेतावनी संकेत (Critical Warning Signs)**:
-  - पेट में तेज और लगातार दर्द
-  - बार-बार उल्टी होना और मसूड़ों या नाक से खून बहना
-  - अत्यधिक थकान, बेचैनी और प्लेटलेट (Platelets) में तेजी से गिरावट
-  - त्वचा पर लाल चकत्ते और तरल पदार्थ का जमाव (प्लूरल एफ्यूजन)
-
-• **महत्वपूर्ण चिकित्सा निर्देश**:
-  - एस्पिरिन या आईबुप्रोफेन (Ibuprofen/Aspirin) जैसी NSAID दवाएं न लें क्योंकि इससे ब्लीडिंग का खतरा बढ़ता है।
-  - केवल पेरासिटामोल लें और ORS व उबले पानी से शरीर को हाइड्रेटेड रखें।
-
-• **प्राथमिक स्वास्थ्य केंद्र (PHC) सलाह**:
-  - चेतावनी संकेत दिखने पर तुरंत निकटतम प्राथमिक स्वास्थ्य केंद्र (PHC) पर जाकर प्लेटलेट और हीमैटोक्रिट जांच करवाएं।
-
-⚠️ *चिकित्सा अस्वीकरण: यह जानकारी WHO और MoHFW दिशानिर्देशों पर आधारित जनस्वास्थ्य शिक्षा के लिए है। डॉक्टर से परामर्श लें।*`;
-    } else if (lang === 'od-IN') {
-      return `### 🦟 ଡେଙ୍ଗୁ (Dengue) - ସାବଧାନତା ଓ ଲକ୍ଷଣ (WHO ଓ NCVBDC ମାନକ)
-
-• **ମୁଖ୍ୟ ସାବଧାନତା ଲକ୍ଷଣ (Critical Warning Signs)**:
-  - ପ୍ରବଳ ପେଟ ବିନ୍ଧା ଏବଂ କ୍ରମାଗତ ବାନ୍ତି
-  - ନାକ କିମ୍ବା ମାଢ଼ିରୁ ରକ୍ତସ୍ରାବ
-  - ଅତ୍ୟଧିକ କ୍ଲାନ୍ତି, ଅସ୍ଥିରତା ଏବଂ ପ୍ଲେଟଲେଟ୍ ହ୍ରାସ
-
-• **ମୁଖ୍ୟ ନିର୍ଦ୍ଦେଶ**:
-  - Ibuprofen କିମ୍ବା Aspirin ନିଅନ୍ତୁ ନାହିଁ। କେବଳ Paracetamol ନିଅନ୍ତୁ ଏବଂ ORS/ପ୍ରଚୁର ପାଣି ପିଅନ୍ତୁ।
-  - ତୁରନ୍ତ ନିକଟସ୍ଥ PHC ରେ ରକ୍ତ ପରୀକ୍ଷା କରାନ୍ତୁ।
-
-⚠️ *ସ୍ୱାସ୍ଥ୍ୟ ସୂଚନା: ଏହା WHO ଓ ସ୍ୱାସ୍ଥ୍ୟ ମନ୍ତ୍ରଣାଳୟ ତଥ୍ୟ ଆଧାରିତ। ଡାକ୍ତରଙ୍କ ପରାମର୍ଶ ନିଅନ୍ତୁ।*;`;
-    } else {
-      return `### 🦟 Dengue & Severe Dengue Warning Signs (WHO & CDC Guidelines)
-
-• **Critical Warning Signs**:
-  - Severe abdominal pain and persistent vomiting
-  - Mucosal bleeding (gums, nose) and fluid accumulation
-  - Lethargy, restlessness, and rapid decline in blood platelet count
-  - Plasma leakage and liver enlargement
-
-• **Crucial Safety Rule**:
-  - Avoid NSAIDs (Ibuprofen, Aspirin) due to severe hemorrhage risk. Use Paracetamol and Oral Rehydration Solution (ORS).
-
-• **PHC Medical Advisory**:
-  - Immediate hospitalization and fluid management at your nearest PHC for diagnostic platelet and hematocrit screening.
-
-⚠️ *Medical Disclaimer: This information is for public health education grounded in WHO & MoHFW guidelines. Consult a doctor for clinical evaluation.*`;
-    }
+  if (wordCount <= 4 && !q.includes('what') && !q.includes('how') && !q.includes('symptoms')) {
+    return `### Understanding\nI understand you are inquiring about "${userQuery}".\n\n### What you should do\nCould you share a bit more detail (such as specific symptoms or duration) so I can give you relevant guidance?\n\n### When to see a doctor\nIf symptoms are severe or worsening, please visit your nearest Primary Health Centre (PHC).`;
   }
 
-  // 2. Pneumonia Topic
-  if (q.includes('pneumonia') || q.includes('ନିମୋନିଆ') || q.includes('ପ୍ନୁମୋନିଆ') || q.includes('निमोनिया') || q.includes('lungs')) {
-    if (lang === 'hi-IN') {
-      return `### 🫁 निमोनिया (Pneumonia) - जनस्वास्थ्य एवं चिकित्सा सलाह (WHO व ICMR)
-
-• **प्रमुख लक्षण**: तेज बुखार, ठंड लगना, बलगम वाली खांसी, सांस लेने में तकलीफ (Dyspnea) और सीने में दर्द।
-• **कारण व रोकथाम**: बैक्टीरिया (*Streptococcus pneumoniae*) या वायरस संक्रमण। शिशुओं के लिए **PCV टीका (Pneumococcal Vaccine)** आवश्यक है।
-• **चिकित्सा सलाह**: तुरंत PHC जाकर पल्स ऑक्सीमीटर से ऑक्सीजन स्तर और छाती का एक्स-रे करवाएं।
-
-⚠️ *चिकित्सा अस्वीकरण: यह जानकारी WHO और MoHFW दिशानिर्देशों पर आधारित है। डॉक्टर से परामर्श लें।*`;
-    } else if (lang === 'od-IN') {
-      return `### 🫁 ପ୍ନୁମୋନିଆ (Pneumonia) - ଜନସ୍ୱାସ୍ଥ୍ୟ ଏବଂ ଡାକ୍ତରୀ ପରାମର୍ଶ (WHO ଓ ICMR)
-
-• **ମୁଖ୍ୟ ଲକ୍ଷଣ**: ପ୍ରବଳ ଜ୍ଵର, କମ୍ପ, କଫ/ପୂଜ ସହିତ କାସ, ନିଶ୍ୱାସ ନେବାରେ କଷ୍ଟ ଏବଂ ଛାତି ବିନ୍ଧା।
-• **ପ୍ରତିଷେଧକ**: PCV ଟିକା (Pneumococcal Vaccine) ଏବଂ Hib ଟିକା।
-• **ଡାକ୍ତରୀ ପରାମର୍ଶ**: ତୁରନ୍ତ PHC କୁ ଯାଇ SpO2 ଅକ୍ସିଜେନ୍ ସ୍ତର ଏବଂ X-Ray କରାନ୍ତୁ।
-
-⚠️ *ସ୍ୱାସ୍ଥ୍ୟ ସୂଚନା: ଏହା WHO ଓ ସ୍ୱାସ୍ଥ୍ୟ ମନ୍ତ୍ରଣାଳୟ ତଥ୍ୟ ଆଧାରିତ। ଡାକ୍ତରଙ୍କ ପରାମର୍ଶ ନିଅନ୍ତୁ।*;`;
-    } else {
-      return `### 🫁 Pneumonia - Public Health & Medical Advisory (WHO & ICMR Standards)
-
-• **Key Symptoms**: High fever with chills, cough producing green/yellow phlegm, dyspnea (shortness of breath), and sharp chest pain.
-• **Causes & Prevention**: Bacterial (*Streptococcus pneumoniae*) or viral infection. Pneumococcal Conjugate Vaccine (PCV) under Universal Immunization (UIP).
-• **Medical Advisory**: Immediate PHC evaluation for SpO2 pulse oximetry, chest X-ray, and physician-prescribed antibiotics (Amoxicillin).
-
-⚠️ *Medical Disclaimer: Consult a doctor at your nearest PHC for clinical diagnosis.*`;
-    }
-  }
-
-  // 3. Malaria Topic
-  if (q.includes('malaria') || q.includes('ମଲେରିଆ') || q.includes('मलेरिया') || q.includes('chills')) {
-    return `### 🦟 Malaria - NCVBDC & WHO Public Health Advisory
-
-• **Key Symptoms**: Sudden high fever with shivering/chills, severe headache, vomiting, and heavy sweating.
-• **Cause**: Transmission of *Plasmodium* parasites by female Anopheles mosquitoes.
-• **Diagnosis & Treatment**: Rapid Diagnostic Test (RDT) or blood smear test at nearest PHC. Artemisinin-based Combination Therapy (ACT) as prescribed.
-• **Prevention**: Insecticide-Treated Bed Nets (ITNs), vector control, and eliminating standing water.
-
-⚠️ *Medical Disclaimer: Visit your nearest PHC for diagnostic blood screening.*`;
-  }
-
-  // 4. Tuberculosis (TB) Topic
-  if (q.includes('tb') || q.includes('tuberculosis') || q.includes('ଯକ୍ଷ୍ମା') || q.includes('टीबी')) {
-    return `### 🫁 Tuberculosis (TB) - NTEP & WHO Guidelines
-
-• **Key Symptoms**: Cough lasting over 2 weeks, low-grade evening fever, night sweats, weight loss, and coughing up blood.
-• **Free Government Testing**: Free CBNAAT/TrueNAT diagnostic test and free 6-month DOTS treatment under Ni-kshay Yojana at all government health centres.
-
-⚠️ *Medical Disclaimer: Consult a medical officer at your nearest PHC for sputum testing.*`;
-  }
-
-  // 5. Dynamic Evidence Synthesis for Any Specific Health Topic
   if (pdfEv.length > 0 || webEv.length > 0) {
-    const findings = [];
-    pdfEv.forEach(e => findings.push(`• **WHO PDF Report (Page ${e.page})**: ${e.text}`));
-    webEv.forEach(e => findings.push(`• **${e.organization} (${e.title})**: ${e.snippet}`));
-
-    return `### 🏥 Public Health Evidence & Advisory for "${userQuery}"
-
-${findings.join('\n')}
-
-• **Recommended Steps**:
-  - Maintain adequate hydration with clean water/ORS and rest adequately.
-  - Visit your nearest Primary Health Centre (PHC) for diagnostic evaluation.
-
-⚠️ *Medical Disclaimer: This guidance is for public health education grounded in WHO & MoHFW guidelines. Consult a doctor for clinical evaluation.*`;
+    const evidenceSummary = pdfEv.concat(webEv).map(e => e.text || e.snippet).slice(0, 2).join(' ');
+    return `### Understanding\nRegarding your query about **"${userQuery}"**:\n\n### Evidence-based information\n${evidenceSummary}\n\n### What you should do\nIf you are experiencing any symptoms, maintain good hydration with clean water or ORS and rest.\n\n### When to see a doctor\nVisit your nearest Primary Health Centre (PHC) for diagnostic screening.`;
   }
 
-  // 6. Direct Natural Language Guidance Response for General Queries
-  if (lang === 'hi-IN') {
-    return `नमस्ते! **स्वास्थ्य सखा** आपकी सेवा में उपलब्ध है।
-
-आप मुझसे किसी भी बीमारी (जैसे डेंगू, मलेरिया, निमोनिया, टीबी), लक्षणों, टीकाकरण या प्राथमिक स्वास्थ्य सेवाओं के बारे में प्रश्न पूछ सकते हैं।`;
-  } else if (lang === 'od-IN') {
-    return `ନମସ୍କାର! **ସ୍ୱାସ୍ଥ୍ୟ ସଖା** ଆପଣଙ୍କ ସେବାରେ ଉପଲବ୍ଧ।
-
-ଆପଣ ମୋତେ ରୋଗର ଲକ୍ଷଣ (ଡେଙ୍ଗୁ, ମଲେରିଆ, ପ୍ନୁମୋନିଆ, ଟିବି), ଟିକାକରଣ କିମ୍ବା PHC ସ୍ୱାସ୍ଥ୍ୟ ସେବା ବିଷୟରେ ଯେକୌଣସି ପ୍ରଶ୍ନ ପଚାରିପାରିବେ।`;
-  } else {
-    return `Hello! **Swasthya Sakha** is here to help you.
-
-You can ask me any question about disease symptoms (Dengue, Malaria, Pneumonia, TB), immunization schedules, or primary health services across India. How can I assist you today?`;
-  }
+  return `### Understanding\nRegarding **"${userQuery}"**:\n\n### Evidence-based information\nIf you are experiencing any health symptoms, maintain proper fluid intake with clean water or ORS and rest.\n\n### When to see a doctor\nPlease visit your nearest Primary Health Centre (PHC) for diagnostic screening.`;
 }
 
 export default sendChatMessage;

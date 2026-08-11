@@ -1,4 +1,5 @@
 const { onRequest } = require('firebase-functions/v2/https');
+const { defineSecret } = require('firebase-functions/params');
 const cors = require('cors')({ origin: true });
 const llmService = require('../services/llm.service');
 const sarvamService = require('../services/sarvam.service');
@@ -6,7 +7,10 @@ const mlService = require('../services/ml.service');
 const { validateChatRequest } = require('../utils/validation');
 const { handleApiError } = require('../utils/errors');
 
-exports.generateChatResponse = onRequest((req, res) => {
+// Bind GEMINI_API_KEY secret for Firebase Functions v2
+const geminiApiKey = defineSecret('GEMINI_API_KEY');
+
+exports.generateChatResponse = onRequest({ secrets: [geminiApiKey] }, (req, res) => {
   return cors(req, res, async () => {
     try {
       if (req.method !== 'POST') {
