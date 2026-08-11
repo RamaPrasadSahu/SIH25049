@@ -1,0 +1,174 @@
+import { useState, useRef, useEffect } from 'react';
+import { transcribeVoiceAudio } from '../services/voice.service';
+
+export const useVoice = (languageCode = 'od-IN') => {
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [recognizedText, setRecognizedText] = useState('');
+  const [error, setError] = useState(null);
+
+  const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const timerIntervalRef = useRef(null);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // Ignore unmount stop errors
+        }
+      }
+    };
+  }, []);
+
+  const startRecording = async () => {
+    setError(null);
+    setRecognizedText('');
+    setRecordingTime(0);
+
+    // 1. Try Native Webkit/Browser Speech Recognition API (Real-time live STT)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        // Standardize language code string for Speech Recognition
+        let speechLang = languageCode;
+        if (speechLang === 'od-IN' || speechLang === 'or-IN') speechLang = 'or-IN';
+        recognition.lang = speechLang;
+
+        recognition.onresult = (event) => {
+          let currentTranscript = '';
+          for (let i = 0; i < event.results.length; i++) {
+            currentTranscript += event.results[i][0].transcript;
+          }
+          if (currentTranscript) {
+            setRecognizedText(currentTranscript);
+          }
+        };
+
+        recognition.onerror = (event) => {
+          console.warn('Speech recognition error:', event.error);
+          if (event.error === 'not-allowed') {
+            setError('Microphone permission denied. Please allow microphone access.');
+          } else if (event.error !== 'no-speech') {
+            setError(`Voice recognition error: ${event.error}`);
+          }
+        };
+
+        recognition.onend = () => {
+          setIsRecording(false);
+          if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        };
+
+        recognition.start();
+        recognitionRef.current = recognition;
+        setIsRecording(true);
+
+        timerIntervalRef.current = setInterval(() => {
+          setRecordingTime(prev => prev + 1);
+        }, 1000);
+        return;
+      } catch (err) {
+        console.warn('SpeechRecognition failed to start, attempting MediaRecorder fallback:', err);
+      }
+    }
+
+    // 2. Fallback: MediaRecorder Audio Blob Capture + Sarvam AI Cloud API
+    try {
+      audioChunksRef.current = [];
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        await processAudioBlob(audioBlob);
+
+        // Stop all audio tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      timerIntervalRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.error('Microphone permission or recording error:', err);
+      setError('Microphone access denied or not supported by browser.');
+      setIsRecording(false);
+    }
+  };
+
+  const stopRecording = () => {
+    setIsRecording(false);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        console.warn('Error stopping SpeechRecognition:', e);
+      }
+    }
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (e) {
+        console.warn('Error stopping MediaRecorder:', e);
+      }
+    }
+  };
+
+  const processAudioBlob = async (blob) => {
+    setIsProcessing(true);
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64Audio = reader.result.split(',')[1];
+        const result = await transcribeVoiceAudio(base64Audio, languageCode);
+        if (result && result.transcript) {
+          setRecognizedText(result.transcript);
+        }
+        setIsProcessing(false);
+      };
+    } catch (err) {
+      console.error('Error processing audio:', err);
+      setError('Failed to process voice audio.');
+      setIsProcessing(false);
+    }
+  };
+
+  return {
+    isRecording,
+    recordingTime,
+    isProcessing,
+    recognizedText,
+    error,
+    startRecording,
+    stopRecording
+  };
+};
+
+export default useVoice;

@@ -1,0 +1,52 @@
+{
+  "dataset": "WHO World Health Statistics",
+  "totalCountries": 194,
+  "columns": [
+    "Country",
+    "Region",
+    "Population",
+    "Under15",
+    "Over60",
+    "FertilityRate",
+    "LifeExpectancy",
+    "ChildMortality",
+    "CellularSubscribers",
+    "LiteracyRate",
+    "GNI",
+    "PrimarySchoolEnrollmentMale",
+    "PrimarySchoolEnrollmentFemale"
+  ],
+  "indiaProfile": {
+    "Country": "India",
+    "Region": "South-East Asia",
+    "Population": 1240000,
+    "Under15": 29.43,
+    "Over60": 8.1,
+    "FertilityRate": 2.53,
+    "LifeExpectancy": 65,
+    "ChildMortality": 56.3,
+    "CellularSubscribers": 72.0,
+    "LiteracyRate": NaN,
+    "GNI": 3590.0,
+    "PrimarySchoolEnrollmentMale": NaN,
+    "PrimarySchoolEnrollmentFemale": NaN
+  },
+  "regionalAverages": {
+    "LifeExpectancy": {
+      "Africa": 57.96,
+      "Americas": 74.34,
+      "Eastern Mediterranean": 69.59,
+      "Europe": 76.74,
+      "South-East Asia": 69.36,
+      "Western Pacific": 72.33
+    },
+    "ChildMortality": {
+      "Africa": 84.04,
+      "Americas": 19.32,
+      "Eastern Mediterranean": 40.25,
+      "Europe": 10.05,
+      "South-East Asia": 35.05,
+      "Western Pacific": 24.71
+    }
+  }
+}

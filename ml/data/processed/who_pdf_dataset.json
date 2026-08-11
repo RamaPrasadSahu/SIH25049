@@ -1,0 +1,433 @@
+{
+  "source": "WHO World Health Statistics Report (ISBN 9789240110496)",
+  "pdfPath": "D:/Dataset/9789240110496-eng.pdf",
+  "totalPages": 88,
+  "totalChunks": 78,
+  "chunks": [
+    {
+      "page": 1,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "Monitoring health for the SDGs,"
+    },
+    {
+      "page": 3,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "Monitoring health for the SDGs,"
+    },
+    {
+      "page": 4,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "World health statistics 2025: monitoring health for the SDGs, Sustainable Development Goals ISBN 978-92-4-011049-6 (electronic version) ISBN 978-92-4-011050-2 (print version) \u00a9 World Health Organization 2025 Some rights reserved. This work is available under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 IGO licence (CC BY-NC-SA 3.0 IGO; https://creativecommons.org/licenses/by-nc-sa/3.0/igo)."
+    },
+    {
+      "page": 5,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "mortality"
+      ],
+      "summary": "1. Change and inequality in healthy longevity, and the contributing causes 5 1.1 Change in HALE between 2000 and 2019  7 1.2 Change in HALE during the COVID-19 pandemic in 2019\u20132021 10 1.2.1 Change attributed to mortality 10 1.2.2 Change attributed to morbidity 11 1.3 Gap in HALE between males and females in 2019 and 2021 12"
+    },
+    {
+      "page": 6,
+      "matchedKeywords": [
+        "immunization",
+        "vaccine",
+        "sdg"
+      ],
+      "summary": "2.4 Universal health coverage and health systems 41 3. Progress in achieving the Triple Billion targets 51 3.1 Triple Billion targets progress 52 3.2 Progress in healthier populations 53 3.3 Progress in universal health coverage 54 3.4 Progress in health emergencies protection 54"
+    },
+    {
+      "page": 7,
+      "matchedKeywords": [
+        "diabetes",
+        "hypertension",
+        "immunization",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "To make progress, we must be able to measure progress. Data about the health of populations are foundational to understanding trends, making policies and directing resources to where they will have the greatest benefit. Without timely, trusted and actionable data, threats remain invisible, systems underperform and"
+    },
+    {
+      "page": 9,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "tb",
+        "immunization",
+        "vaccine",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "APC alcohol per capita consumption ARIs acute respiratory infections ASR age-standardized death rate DHS Demographic and Health Survey(s) DTP3  diphtheria\u2013tetanus\u2013pertussis vaccine GLASS  Global Antimicrobial Resistance and Use"
+    },
+    {
+      "page": 11,
+      "matchedKeywords": [
+        "immunization",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "The World health statistics report is the annual compilation of health and health-related indicators, which has been published by the World Health The 2025 edition consists of four chapters and the accompanying annexes. Chapter 1 presents an in- depth analysis of global and regional estimates of life"
+    },
+    {
+      "page": 13,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "tb",
+        "diabetes",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "The major contributors to the 5.4-year pre-pandemic increase in global healthy life expectancy (HALE) at birth between 2000 (58.1 years) and 2019 (63.5 years) were mortality reduction from communicable and perinatal conditions among ages under 5 years, and from noncommunicable diseases (NCDs) among those 30 years"
+    },
+    {
+      "page": 14,
+      "matchedKeywords": [
+        "immunization",
+        "sdg"
+      ],
+      "summary": "financial hardship by 2024 compared with the 2018 baseline set in the WHO Thirteenth General Programme of Work, and only a projected 500 million by 2025 \u2013 just half of the targeted one billion. Meanwhile, close to 637 million additional individuals are expected to be better protected from health emergencies by 2024. This"
+    },
+    {
+      "page": 16,
+      "matchedKeywords": [
+        "tb",
+        "hypertension",
+        "mortality"
+      ],
+      "summary": "Unless otherwise stated, the principal source of data for this chapter is the World Health Organization (WHO) Global The global community enjoyed steady improvements in many aspects of population health between the turn of the century until the onset of the pandemic, from increasing access to clean water and sanitation"
+    },
+    {
+      "page": 17,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "diabetes",
+        "mortality"
+      ],
+      "summary": "1.1 Change in HALE between 2000 Globally, the 5.4-year increase in HALE at birth between 2000 (58.1 years) and 2019 (63.5 years) was a result of declining mortality and morbidity over time, contributing 5.2 years (96.0%) and 0.2 years (4%), respectively. Reduction in mortality from communicable, maternal,"
+    },
+    {
+      "page": 18,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "diabetes",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "As the cause and the age profile of mortality and morbidity vary across geographical locations, the contributions to HALE by cause and age also exhibit In the WHO African Region, the most remarkable contributor to the HALE gain in 2000\u20132019 was from reduction in HIV/AIDS mortality, resulting in a total"
+    },
+    {
+      "page": 19,
+      "matchedKeywords": [
+        "diabetes",
+        "mortality"
+      ],
+      "summary": "Similarly, in the Eastern Mediterranean Region and the South-East Asia Region, reduction in mortality from communicable diseases was the primary driver of the HALE gain in 2000\u20132019. Diarrhoeal diseases contributed a total of 1.01 years (0.47 years among those aged under 5 years) in HALE gain in the South-East Asia Region and"
+    },
+    {
+      "page": 20,
+      "matchedKeywords": [
+        "tuberculosis",
+        "diabetes",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "The Global HALE dropped by 1.54 years between 2019 and 2021. Mortality from the emerging COVID-19 and other outcomes related to the COVID-19 pandemic led to 1.29-year and 0.28-year losses, respectively, in HALE, totalling a staggering 1.57-year loss within just two years and exceeding the total gains in reduced mortality and"
+    },
+    {
+      "page": 21,
+      "matchedKeywords": [
+        "mortality"
+      ],
+      "summary": "Much of the 2.72-year HALE loss in the Region of the Americas can be attributed to COVID-19 mortality among adults aged 30 years and older (1.92 years) and morbidity for all ages (0.15 years). Loss in HALE can also be explained by causes for which the previous pre-pandemic progress in mortality reduction was completely reversed"
+    },
+    {
+      "page": 22,
+      "matchedKeywords": [
+        "tuberculosis",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "On average, women live longer than men, as they benefit from lower mortality, especially from causes that are affected by behavioural or genetic factors (8,9,10,11). In 2019, just before the COVID-19 pandemic, the global female life expectancy was about 5.1 years longer than that of males (75.70 versus 70.61 years). However, with"
+    },
+    {
+      "page": 23,
+      "matchedKeywords": [
+        "tuberculosis",
+        "mortality"
+      ],
+      "summary": "In addition, a higher rate of morbidity from many conditions has cost more healthy life-years among females. Back and neck pain, gynaecological diseases and migraine among females aged 30 years and older reduced female HALE by 0.39 years, 0.38 years and 0.13 years, respectively, compared with males, and thus"
+    },
+    {
+      "page": 24,
+      "matchedKeywords": [
+        "tuberculosis",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "Similar patterns were observed across WHO regions, yet given each region\u2019s unique epidemiological profile, there are distinctive characteristics in the health inequality between male and females in each region. In the African Region, sex-difference in mortality from communicable diseases was the primary source of the"
+    },
+    {
+      "page": 25,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "mortality"
+      ],
+      "summary": "Low-incomeLower-middle-incomeUpper-middle-income 5. Collective violence and legal intervention 1. Lower respiratory infections 9.   Birth asphyxia and birth trauma 17. Trachea, bronchus, lung cancers 3. Lower respiratory infections"
+    },
+    {
+      "page": 26,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "However, high-income countries did not succeed in every aspect. Higher mortality due to trachea, bronchus and lung cancers, particularly among adults aged 30 years and older, led to a negative contribution to the difference in HALE when comparing high-income countries against low-income (\u20130.17 years) and lower-middle-income"
+    },
+    {
+      "page": 27,
+      "matchedKeywords": [
+        "mortality"
+      ],
+      "summary": "Deaths occurring before the age of 70 years are considered premature and the majority of these deaths are preventable. Taking into account of the changing population structure over time and its difference across regions, the age-standardized death rate (ASR) for ages under 70 years was in steady decline from 2000 until the"
+    },
+    {
+      "page": 28,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "The probability of dying before the age of 70 years is another important indicator for overall population health with a focus on mortality. Premature mortality had been in decline globally and in all WHO regions, from 2000 to the onset of the COVID-19 pandemic. Globally, a newborn had about 40.4% chance of dying before reaching the"
+    },
+    {
+      "page": 29,
+      "matchedKeywords": [
+        "mortality"
+      ],
+      "summary": "Figure 1.10 Annual rate of reduction in probability of death under 70 years of age, observed (2000\u20132019) versus Projected annualized rate of reduction 2019\u20132050 (%) Observed annualized rate of reduction 2000\u20132019 (%) Projected annualized rate of reduction 2019\u20132050 (%) Observed annualized rate of reduction 2000\u20132019 (%) Upper-middle-income High-income"
+    },
+    {
+      "page": 30,
+      "matchedKeywords": [
+        "hypertension",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "1  Unless otherwise stated, all references accessed on 5 May 2025. 1. Global health estimates 2021 [website]. Geneva: World Health Organization; 2024 (https://www.who.int/data/global-health- estimates, accessed on 08 January 2025). 2. Delivery care: UNICEF/WHO joint database on births attended by skilled health personnel. New York: United Nations"
+    },
+    {
+      "page": 31,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "This chapter presents the latest available evidence of trends in health-related SDG indicators, assessing progress towards achieving the global targets. The topics covered in this chapter include child mortality, cause-specific mortality, infectious diseases, risk factors for health, and UHC and health systems."
+    },
+    {
+      "page": 32,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "2.1 Mortality-related Sustainable Globally, an estimated 260 000 (uncertainty interval [UI]: 230 000\u2013309 000) women died in 2023 due to maternal conditions, equivalent to an overall maternal mortality ratio (MMR; SDG indicator 3.1.1) of 197 (UI: 174\u2013234) maternal deaths per 100 000 live births. This represents"
+    },
+    {
+      "page": 33,
+      "matchedKeywords": [
+        "malaria",
+        "immunization",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "In 2023, the African Region had a high MMR of 442 (UI: 376\u2013560) per 100 000 live births and alone accounted for approximately 70% of global maternal deaths in 2023. The Eastern Mediterranean and South-East Asia Regions each accounted for about 12% of global maternal deaths, with MMRs of 167 (UI: 135\u2013218) and 96 (UI: 86\u2013112),"
+    },
+    {
+      "page": 34,
+      "matchedKeywords": [
+        "diabetes",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "The number of deaths occurring in the first 28 days of life (the newborn period) declined from 4.2 million (UI: 4.0\u2013 4.3 million) in 2000 to 2.3 million (UI: 2.1\u2013 2.6 million) in 2023. However, the 45% decline in the neonatal mortality rate (NMR; SDG indicator 3.2.2) from 2000 (31 [UI: 30\u201332] deaths per 1000 live births) to 2023 (17"
+    },
+    {
+      "page": 35,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "Figure 2.3 Observed and projected trends for risk of premature mortality from NCDs (%), by WHO region Risk of premature death from major NCDs (%) 2.1.3 Mortality due to injuries In 2021, an estimated 1.18 million (UI: 1.05\u20131.32 million) people died due to road injuries globally (SDG indicator 3.6.1). The greatest burden was observed in South-East"
+    },
+    {
+      "page": 36,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "Road fatalities declined by 5.5% from 2010\u20132021, falling from 1.25 million (UI: 1.11\u20131.39 million) deaths in 2010 (4). This is equivalent to a decline from 17.9 (UI: 15.7\u201319.9) deaths per 100 000 population to 14.9 (UI: 13.2\u201316.6) deaths per 100 000 population, and is in spite of the growth in global population and number of vehicles. This"
+    },
+    {
+      "page": 37,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "per 100 000 population. The greatest decline in CDR was achieved in the European Region, with a decline of nearly two thirds between 2000 and 2021, followed by the South-East Asia and Eastern Mediterranean Regions, with a 36% and 30% decline, respectively. However, the rate stagnated in the African Region and a slight increase"
+    },
+    {
+      "page": 38,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "Millions of people globally lack access to safe water, sanitation and hygiene (WASH) services and consequently suffer from or are exposed to a multitude of preventable Four health outcomes \u2013 diarrhoea, acute respiratory infections, undernutrition and soil-transmitted helminthiases \u2013 are included in the SDG indicator 3.9.2 on"
+    },
+    {
+      "page": 39,
+      "matchedKeywords": [
+        "malaria",
+        "tuberculosis",
+        "sdg"
+      ],
+      "summary": "In the infectious disease section, the indicators on new HIV infections, tuberculosis and malaria incidence, hepatitis B and neglected tropical diseases are monitored towards progress within SDG target 3.3. In addition, this section also presents the status of AMR. Globally, an estimated 39.9 million (UI: 36.1\u201344.6 million)"
+    },
+    {
+      "page": 40,
+      "matchedKeywords": [
+        "tuberculosis",
+        "tb",
+        "sdg"
+      ],
+      "summary": "The global increase in new TB cases that has been observed since the start of the COVID-19 pandemic has slowed and is now stabilizing. In 2023, an estimated 10.8 million people (UI: 10.1\u201311.7 million) developed TB, a slight rise from 10.7 million (UI: 10.0\u201311.5 million) in 2022. However, this remains higher than the 10.4 million"
+    },
+    {
+      "page": 41,
+      "matchedKeywords": [
+        "malaria",
+        "sdg",
+        "mortality"
+      ],
+      "summary": "In 2023, there were an estimated 263 million (UI: 238\u2013294 million) malaria cases globally, an increase of 11 million cases from the previous year. The global incidence rate (SDG indicator 3.3.3) in 2023 was 60.4 (UI: 54.8\u201367.5) cases per 1000 population at risk, a rise from 58.6 (UI: 53.1\u201365.6) cases per 1000 population at risk in"
+    },
+    {
+      "page": 42,
+      "matchedKeywords": [
+        "dengue",
+        "sdg"
+      ],
+      "summary": "Global new infections of viral hepatitis dropped from 3.0 million in 2019 to 2.2 million in 2022, including 1.2 million newly infected with hepatitis B. The African Region accounted for 63% (or 771 000) of all new hepatitis B infections globally in 2022. This underscores the importance of a focus on scaling up access to viral"
+    },
+    {
+      "page": 43,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "SDG indicator 3.d.2 monitors the proportion of bloodstream infections caused by antimicrobial-resistant organisms, specifically Escherichia coli resistant to third-generation cephalosporins and methicillin- resistant Staphylococcus aureus (MRSA). In 2022, median resistance proportions were 45.5% (interquartile range"
+    },
+    {
+      "page": 44,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "A risk factor for health is any attribute, characteristic or exposure of an individual that increases their likelihood of developing a disease or injury. This section presents progress towards achieving the SDG targets related to nutritional, behavioural and environmental risk factors that may affect individual and population health."
+    },
+    {
+      "page": 46,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "Anaemia is an important global health issue mainly affecting young children, menstruating girls and women, and pregnant and postpartum women. It can affect school performance and productivity in adult life leading to economic losses. During pregnancy, anaemia has been associated with poor maternal and birth"
+    },
+    {
+      "page": 47,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "Prevalence remained much higher among men than women globally. In 2022, there were four times as many male tobacco users as female users among those aged 15 years and older. The prevalence among female tobacco users fell by 34% between 2010 and 2022, exceeding even the 2025 global target. Among male users, prevalence"
+    },
+    {
+      "page": 48,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "Safe drinking water, sanitation and hygiene (WASH) is crucial to human health and well-being. Contaminated water and poor sanitation are linked to transmission of diseases such as cholera, diarrhoea, dysentery, hepatitis A, typhoid and polio. The global coverage of safely managed drinking water"
+    },
+    {
+      "page": 49,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "SDG indicator 6.3.1 monitors the proportion of total, domestic and industrial wastewater flows that are safely treated. Many countries, however, are at an early stage of developing wastewater monitoring systems and there is currently a lack of reporting, especially from industrial sources. Among the 73 countries (representing"
+    },
+    {
+      "page": 50,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "In terms of ambient air pollution, SDG indicator 11.6.2 tracks the annual average concentration of fine particulate matter in urban areas. Globally, air quality levels for particulate matter are still more than six times the recommended level for protecting public health according to the WHO air quality guidelines, which is set"
+    },
+    {
+      "page": 51,
+      "matchedKeywords": [
+        "diabetes",
+        "hypertension",
+        "sdg"
+      ],
+      "summary": "Violence against women and girls \u2013 particularly intimate partner violence (IPV) and sexual violence \u2013 is a violation of human rights and a major public health problem. Such violence often has devastating impacts on the lives and well-being of the victims, as well as their children According to the latest available global estimates, in"
+    },
+    {
+      "page": 52,
+      "matchedKeywords": [
+        "tuberculosis",
+        "tb",
+        "diabetes",
+        "hypertension",
+        "immunization",
+        "vaccine",
+        "sdg"
+      ],
+      "summary": "Figure 2.18 Universal health coverage service coverage index (UHC SCI) and selected tracers globally, 2000 and latest available year (2019\u20132024) ART: Antiretroviral therapy; DTP3: diphtheria, tetanus toxoid and pertussis vaccination; TB: tuberculosis. a   Diabetes treatment will be a UHC SCI tracer in the next round of reporting, see Box 2.2 for more information. Source: Sanitation (35), UHC SCI (44), ART (14,15), TB (18), hypertension (45), diabetes (46), tobacco (31), family planning (47), DTP"
+    },
+    {
+      "page": 53,
+      "matchedKeywords": [
+        "sdg",
+        "mortality"
+      ],
+      "summary": "on service provision and service utilization for treatment of alcohol and drug use disorders (51). Alcohol and drug use are risk factors for multiple health conditions, such as cardiovascular diseases, liver diseases, cancer, respiratory diseases, injuries and mental health disorders, all of which contribute to NCD-related morbidity and"
+    },
+    {
+      "page": 54,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "Health workers are crucial for achieving UHC. Their role goes beyond providing medical care: an ample, well- trained and properly distributed workforce ensures that health services are accessible, effective and of good quality for all, regardless of income or place of residence. The estimated global stock of health workers exceeds"
+    },
+    {
+      "page": 55,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "International health regulations IHRs are essential to service delivery as they ensure countries have the necessary capacities within their health systems to prevent, prepare, detect in a timely manner and respond to public health emergencies. IHRs therefore contribute to global health resilience and"
+    },
+    {
+      "page": 56,
+      "matchedKeywords": [
+        "sdg"
+      ],
+      "summary": "Figure 2.22 Trends in the incidence of impoverishing health spending at the extreme and relative poverty lines Source: WHO and World Bank (44). at 2017 purchasing power parity US$ 2.15 a day poverty line Domestic and international funding Domestic public funds provide long-term sustainability, equity and a foundation for health systems, while"
+    }
+  ]
+}
