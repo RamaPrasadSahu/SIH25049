@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '../utils/constants';
+import { detectClientLanguage } from '../utils/languageDetector';
 
 // Resolve Sarvam AI Subscription Key
 const SARVAM_KEY = import.meta.env.VITE_SARVAM_API_KEY || 'sk_gzol1gpk_pa1c7V1dPHN2SIo3h0wXmwJx';
@@ -25,29 +26,33 @@ const LANG_NAMES = {
   'bn-IN': 'Bengali (বাংলা)',
   'ta-IN': 'Tamil (தமிழ்)',
   'te-IN': 'Telugu (తెలుగు)',
-  'mr-IN': 'Marathi (ମରାଠୀ)',
-  'gu-IN': 'Gujarati (ଗୁଜରାଟୀ)',
-  'pa-IN': 'Punjabi (ପଞ୍ଜାବୀ)',
-  'kn-IN': 'Kannada (କନ୍ନଡ଼)',
-  'ml-IN': 'Malayalam (ମଲୟାଲମ)',
-  'as-IN': 'Assamese (ଅସମୀୟା)'
+  'mr-IN': 'Marathi (मराठी)',
+  'gu-IN': 'Gujarati (ગુજરાતી)',
+  'pa-IN': 'Punjabi (ਪੰਜਾਬੀ)',
+  'kn-IN': 'Kannada (கನ್ನಡ)',
+  'ml-IN': 'Malayalam (മലയാളം)',
+  'as-IN': 'Assamese (অসমীয়া)',
+  'es': 'Spanish (Español)',
+  'fr': 'French (Français)',
+  'de': 'German (Deutsch)'
 };
 
 // Intent Regexes
-const GREETING_REGEX = /^(hi|hii|hiii|hello|hey|heyy|namaste|namaskar|ନମସ୍କାର|नमस्ते|good morning|good afternoon|good evening|who are you|help|हाइ|हेलो)$/i;
-const PERSONAL_REGEX = /^(i am|iam|my name is|i'm|i am a person|i am human|i am a human|मैं एक|ମୁଁ ଜଣେ)/i;
+const GREETING_REGEX = /^(hi|hii|hiii|hello|hey|heyy|namaste|namaskar|ନମସ୍କାର|नमस्ते|নমস্কার|வணக்கம்|நமஸ்காரம்|hola|bonjour|hallo|good morning|good afternoon|good evening|who are you|help|हाइ|हेलो)$/i;
+const PERSONAL_REGEX = /^(i am|iam|my name is|i'm|i am a person|i am human|i am a human|मैं एक|ମୁଁ ଜଣେ|আমি একজন|நான் ஒரு)/i;
 
 export const sendChatMessage = async (message, conversationHistory = [], language = 'od-IN', features = null) => {
   const trimmed = message.trim();
+  const activeLang = detectClientLanguage(trimmed, language);
 
   // 1. Conversational Greeting Intent Handling
   if (GREETING_REGEX.test(trimmed)) {
-    return handleGreetingResponse(trimmed, language);
+    return handleGreetingResponse(trimmed, activeLang);
   }
 
   // 2. Personal / Identity Statement Handling
   if (PERSONAL_REGEX.test(trimmed)) {
-    return handlePersonalStatementResponse(trimmed, language);
+    return handlePersonalStatementResponse(trimmed, activeLang);
   }
 
   // 3. Connect to Local Node AI Backend (Port 5001) first for real Sarvam 105B AI Brain response
@@ -61,13 +66,13 @@ export const sendChatMessage = async (message, conversationHistory = [], languag
       const response = await fetchWithTimeout(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, conversationHistory, language, features })
+        body: JSON.stringify({ message, conversationHistory, language: activeLang, features })
       }, 15000);
 
       if (response.ok) {
         const data = await response.json();
         if (data && data.reply) {
-          return data;
+          return { ...data, language: data.language || activeLang };
         }
       }
     } catch (error) {
@@ -76,56 +81,104 @@ export const sendChatMessage = async (message, conversationHistory = [], languag
   }
 
   // 4. Direct Hybrid PDF RAG + External Web Search Engine Failover
-  return await generateHybridRAGReply(message, conversationHistory, language, features);
+  return await generateHybridRAGReply(message, conversationHistory, activeLang, features);
 };
 
 function handleGreetingResponse(query, lang) {
-  if (lang === 'hi-IN') {
-    return {
-      success: true,
-      reply: `नमस्ते! मैं आपका **स्वास्थ्य सखा** हूँ। 🙏\n\nमैं ओडिशा सरकार के जनस्वास्थ्य जागरूकता अभियान के अंतर्गत आपकी सहायता के लिए उपलब्ध हूँ।\n\nआज मैं आपके स्वास्थ्य या बीमारी के लक्षणों के बारे में क्या मदद कर सकता हूँ?`,
-      sources: [],
-      language: lang
-    };
-  } else if (lang === 'od-IN') {
-    return {
-      success: true,
-      reply: `ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କର **ସ୍ୱାସ୍ଥ୍ୟ ସଖା**। 🙏\n\nମୁଁ ଓଡ଼ିଶା ସରକାରଙ୍କ ଜନସ୍ୱାସ୍ଥ୍ୟ ସଚେତନତା ଅଭିଯାନ ଅଧୀନରେ ଆପଣଙ୍କ ସେବାରେ ଉପଲବ୍ଧ।\n\nଆଜି ଆପଣ କ’ଣ ବିଷୟରେ ଜାଣିବାକୁ ଚାହୁଁଛନ୍ତି?`,
-      sources: [],
-      language: lang
-    };
-  } else {
-    return {
-      success: true,
-      reply: `Hello! I am **Swasthya Sakha**, a public health assistant for citizens of Odisha, India, built for the Government of Odisha's public health initiative. 🙏\n\nHow can I help you today with your health or symptom questions?`,
-      sources: [],
-      language: lang
-    };
+  switch (lang) {
+    case 'hi-IN':
+    case 'mr-IN':
+      return {
+        success: true,
+        reply: `नमस्ते! मैं आपका **स्वास्थ्य सखा** हूँ। 🙏\n\nमैं जनस्वास्थ्य जागरूकता अभियान के अंतर्गत आपकी सहायता के लिए उपलब्ध हूँ।\n\nआज मैं आपके स्वास्थ्य या बीमारी के लक्षणों के बारे में क्या मदद कर सकता हूँ?`,
+        sources: [],
+        language: lang
+      };
+    case 'od-IN':
+      return {
+        success: true,
+        reply: `ନମସ୍କାର! ମୁଁ ଆପଣଙ୍କର **ସ୍ୱାସ୍ଥ୍ୟ ସଖା**। 🙏\n\nମୁଁ ଓଡ଼ିଶା ସରକାରଙ୍କ ଜନସ୍ୱାସ୍ଥ୍ୟ ସଚେତନତା ଅଭିଯାନ ଅଧୀନରେ ଆପଣଙ୍କ ସେବାରେ ଉପଲବ୍ଧ।\n\nଆଜି ଆପଣ କ’ଣ ବିଷୟରେ ଜାଣିବାକୁ ଚାହୁଁଛନ୍ତି?`,
+        sources: [],
+        language: lang
+      };
+    case 'bn-IN':
+    case 'as-IN':
+      return {
+        success: true,
+        reply: `নমস্কার! আমি আপনার **স্বাস্থ্য সখা**। 🙏\n\nআমি জনস্বাস্থ্য সচেতনতা অভিযানের অধীনে আপনার সহায়তার জন্য উপলব্ধ।\n\nআজ আমি আপনার স্বাস্থ্য বা রোগের লক্ষণ সম্পর্কে কী সাহায্য করতে পারি?`,
+        sources: [],
+        language: lang
+      };
+    case 'ta-IN':
+      return {
+        success: true,
+        reply: `வணக்கம்! நான் உங்கள் **சுகாதார சகா** (Swasthya Sakha). 🙏\n\nபொது சுகாதார விழிப்புணர்வு திட்டத்தின் கீழ் உங்கள் சேவைக்கு தயாராக உள்ளேன்.\n\nஇன்று உங்கள் ஆரோக்கியம் அல்லது அறிகுறிகள் பற்றி நான் எவ்வாறு உதவ முடியும்?`,
+        sources: [],
+        language: lang
+      };
+    case 'te-IN':
+      return {
+        success: true,
+        reply: `నమస్కారం! నేను మీ **ఆరోగ్య సఖా** (Swasthya Sakha). 🙏\n\nప్రజారోగ్య అవగాహన కార్యక్రమం కింద మీకు సహాయం చేయడానికి సిద్ధంగా ఉన్నాను.\n\nఈరోజు మీ ఆరోగ్యం లేదా వ్యాధి లక్షణాల గురించి నేను ఎలా సహాయపడగలను?`,
+        sources: [],
+        language: lang
+      };
+    case 'es':
+      return {
+        success: true,
+        reply: `¡Hola! Soy **Swasthya Sakha**, su asistente virtual de salud pública. 🙏\n\n¿En qué puedo ayudarle hoy con respecto a su salud, síntomas o prevención médicas?`,
+        sources: [],
+        language: lang
+      };
+    case 'fr':
+      return {
+        success: true,
+        reply: `Bonjour ! Je suis **Swasthya Sakha**, votre assistant virtuel de santé publique. 🙏\n\nComment puis-je vous aider aujourd'hui concernant votre santé ou vos symptômes ?`,
+        sources: [],
+        language: lang
+      };
+    default:
+      return {
+        success: true,
+        reply: `Hello! I am **Swasthya Sakha**, a public health assistant for citizens of Odisha and India. 🙏\n\nHow can I help you today with your health or symptom questions?`,
+        sources: [],
+        language: lang
+      };
   }
 }
 
 function handlePersonalStatementResponse(query, lang) {
-  if (lang === 'hi-IN') {
-    return {
-      success: true,
-      reply: `नमस्ते! एक नागरिक के रूप में, आप मुझसे स्वास्थ्य, बीमारियों के लक्षणों, प्राथमिक चिकित्सा या टीकाकरण से जुड़ा कोई भी प्रश्न पूछ सकते हैं। बताइए, आज आप किस विषय में जानना चाहते हैं?`,
-      sources: [],
-      language: lang
-    };
-  } else if (lang === 'od-IN') {
-    return {
-      success: true,
-      reply: `ନମସ୍କାର! ଆପଣ ଜଣେ ନାଗରିକ ଭାବରେ ସ୍ୱାସ୍ଥ୍ୟ, ରୋଗର ଲକ୍ଷଣ, ଟିକାକରଣ କିମ୍ବା PHC ସେବା ବିଷୟରେ ଯେକୌଣସି ପ୍ରଶ୍ନ ପଚାରିପାରିବେ। ଆଜି ଆପଣ କ’ଣ ପଚାରିବାକୁ ଚାହୁଁଛନ୍ତି?`,
-      sources: [],
-      language: lang
-    };
-  } else {
-    return {
-      success: true,
-      reply: `Hello! As a citizen, feel free to ask me any public health questions — whether it's about disease symptoms, preventive care, immunization, or primary health center services. What would you like to know today?`,
-      sources: [],
-      language: lang
-    };
+  switch (lang) {
+    case 'hi-IN':
+    case 'mr-IN':
+      return {
+        success: true,
+        reply: `नमस्ते! आप मुझसे स्वास्थ्य, बीमारियों के लक्षणों, प्राथमिक चिकित्सा या टीकाकरण से जुड़ा कोई भी प्रश्न पूछ सकते हैं। बताइए, आज आप किस विषय में जानना चाहते हैं?`,
+        sources: [],
+        language: lang
+      };
+    case 'od-IN':
+      return {
+        success: true,
+        reply: `ନମସ୍କାର! ଆପଣ ଜଣେ ନାଗରିକ ଭାବରେ ସ୍ୱାସ୍ଥ୍ୟ, ରୋଗର ଲକ୍ଷଣ, ଟିକାକରଣ କିମ୍ବା PHC ସେବା ବିଷୟରେ ଯେକୌଣସି ପ୍ରଶ୍ନ ପଚାରିପାରିବେ। ଆଜି ଆପଣ କ’ଣ ପଚାରିବାକୁ ଚାହୁଁଛନ୍ତି?`,
+        sources: [],
+        language: lang
+      };
+    case 'bn-IN':
+    case 'as-IN':
+      return {
+        success: true,
+        reply: `নমস্কার! আপনি স্বাস্থ্য, রোগের লক্ষণ, প্রাথমিক চিকিৎসা বা টিকাদান সম্পর্কিত যে কোনও প্রশ্ন করতে পারেন। বলুন, আজ আপনি কী জানতে চান?`,
+        sources: [],
+        language: lang
+      };
+    default:
+      return {
+        success: true,
+        reply: `Hello! As a citizen, feel free to ask me any public health questions — whether it's about disease symptoms, preventive care, immunization, or primary health center services. What would you like to know today?`,
+        sources: [],
+        language: lang
+      };
   }
 }
 
@@ -418,16 +471,26 @@ function synthesizeDynamicChatGPTResponse(userQuery, lang, pdfEv = [], webEv = [
   const q = userQuery.toLowerCase().trim();
   const wordCount = q.split(/\s+/).length;
 
+  const headers = {
+    'hi-IN': { u: '### समझ', e: '### साक्ष्य-आधारित जानकारी', w: '### आपको क्या करना चाहिए', d: '### डॉक्टर से परामर्श कब लें' },
+    'mr-IN': { u: '### समझ', e: '### साक्ष्य-आधारित जानकारी', w: '### आपको क्या करना चाहिए', d: '### डॉक्टर से परामर्श कब लें' },
+    'od-IN': { u: '### ବୁଝାମଣା', e: '### ପ୍ରମାଣ-ଆଧାରିତ ସୂଚନା', w: '### ଆପଣ କ’ଣ କରିବା ଉଚିତ୍', d: '### ଡାକ୍ତରଙ୍କ ପରାମର୍ଶ କେବେ ନେବେ' },
+    'bn-IN': { u: '### বোধগম্যতা', e: '### তথ্য-ভিত্তিক তথ্য', w: '### আপনার কী করা উচিত', d: '### কখন ডাক্তারের সাথে পরামর্শ করবেন' },
+    'as-IN': { u: '### বোধগম্যতা', e: '### তথ্য-ভিত্তিক তথ্য', w: '### আপনার কী করা উচিত', d: '### কখন ডাক্তারের সাথে পরামর্শ করবেন' },
+    'es': { u: '### Comprensión', e: '### Información basada en evidencia', w: '### Lo que debe hacer', d: '### Cuándo consultar a un médico' },
+    'fr': { u: '### Compréhension', e: '### Informations basées sur des preuves', w: '### Ce que vous devez faire', d: '### Quand consulter un médecin' }
+  }[lang] || { u: '### Understanding', e: '### Evidence-based information', w: '### What you should do', d: '### When to see a doctor' };
+
   if (wordCount <= 4 && !q.includes('what') && !q.includes('how') && !q.includes('symptoms')) {
-    return `### Understanding\nI understand you are inquiring about "${userQuery}".\n\n### What you should do\nCould you share a bit more detail (such as specific symptoms or duration) so I can give you relevant guidance?\n\n### When to see a doctor\nIf symptoms are severe or worsening, please visit your nearest Primary Health Centre (PHC).`;
+    return `${headers.u}\nI understand you are inquiring about "${userQuery}".\n\n${headers.w}\nCould you share a bit more detail (such as specific symptoms or duration) so I can give you relevant guidance?\n\n${headers.d}\nIf symptoms are severe or worsening, please visit your nearest Primary Health Centre (PHC).`;
   }
 
   if (pdfEv.length > 0 || webEv.length > 0) {
     const evidenceSummary = pdfEv.concat(webEv).map(e => e.text || e.snippet).slice(0, 2).join(' ');
-    return `### Understanding\nRegarding your query about **"${userQuery}"**:\n\n### Evidence-based information\n${evidenceSummary}\n\n### What you should do\nIf you are experiencing any symptoms, maintain good hydration with clean water or ORS and rest.\n\n### When to see a doctor\nVisit your nearest Primary Health Centre (PHC) for diagnostic screening.`;
+    return `${headers.u}\nRegarding your query about **"${userQuery}"**:\n\n${headers.e}\n${evidenceSummary}\n\n${headers.w}\nIf you are experiencing any symptoms, maintain good hydration with clean water or ORS and rest.\n\n${headers.d}\nVisit your nearest Primary Health Centre (PHC) for diagnostic screening.`;
   }
 
-  return `### Understanding\nRegarding **"${userQuery}"**:\n\n### Evidence-based information\nIf you are experiencing any health symptoms, maintain proper fluid intake with clean water or ORS and rest.\n\n### When to see a doctor\nPlease visit your nearest Primary Health Centre (PHC) for diagnostic screening.`;
+  return `${headers.u}\nRegarding **"${userQuery}"**:\n\n${headers.e}\nIf you are experiencing any health symptoms, maintain proper fluid intake with clean water or ORS and rest.\n\n${headers.d}\nPlease visit your nearest Primary Health Centre (PHC) for diagnostic screening.`;
 }
 
 export default sendChatMessage;

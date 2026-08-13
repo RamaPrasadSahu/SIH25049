@@ -3,6 +3,7 @@ const cors = require('cors');
 const llmService = require('./src/services/llm.service');
 const sarvamService = require('./src/services/sarvam.service');
 const mlService = require('./src/services/ml.service');
+const { detectLanguageFromText } = require('./src/utils/language');
 
 const app = express();
 app.use(cors());
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ limit: '20mb', extended: true }));
 app.post('/generateChatResponse', async (req, res) => {
   try {
     const { message, conversationHistory = [], language = 'od-IN', features } = req.body;
+    const activeLang = detectLanguageFromText(message, language);
 
     let mlRiskAssessment = null;
     if (features && Object.keys(features).length > 0) {
@@ -24,18 +26,19 @@ app.post('/generateChatResponse', async (req, res) => {
     const llmResult = await llmService.generateResponse(
       message,
       conversationHistory,
-      language,
+      activeLang,
       mlRiskAssessment
     );
 
     const reply = typeof llmResult === 'string' ? llmResult : llmResult.reply;
     const sources = typeof llmResult === 'object' ? llmResult.sources : [];
+    const finalLang = llmResult.detectedLanguage || activeLang;
 
     return res.json({
       success: true,
       reply: reply,
       sources: sources,
-      language: language,
+      language: finalLang,
       mlRiskAssessment: mlRiskAssessment,
       timestamp: new Date().toISOString()
     });

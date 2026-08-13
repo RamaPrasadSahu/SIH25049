@@ -3,6 +3,7 @@ import { sendChatMessage } from '../services/chat.service';
 import { SUPPORTED_LANGUAGES } from '../utils/languages';
 import { useAuth } from '../hooks/useAuth';
 import { LanguageContext } from './LanguageContext';
+import { detectClientLanguage } from '../utils/languageDetector';
 
 export const ChatContext = createContext();
 
@@ -114,12 +115,13 @@ export const ChatProvider = ({ children }) => {
   const sendMessage = async (userText, overrideLang = null, features = null) => {
     if (!userText || !userText.trim()) return;
 
-    const currentLang = overrideLang || selectedLanguage;
+    const baseLang = overrideLang || selectedLanguage;
+    const detectedLang = detectClientLanguage(userText, baseLang);
     const userMsg = {
       id: `user-${Date.now()}`,
       role: 'user',
       text: userText,
-      language: currentLang,
+      language: detectedLang,
       createdAt: new Date().toISOString()
     };
 
@@ -158,13 +160,13 @@ export const ChatProvider = ({ children }) => {
 
     try {
       const history = updatedMessages.slice(-6).map(m => ({ role: m.role, text: m.text }));
-      const response = await sendChatMessage(userText, history, currentLang, features);
+      const response = await sendChatMessage(userText, history, detectedLang, features);
 
       const aiMsg = {
         id: `ai-${Date.now()}`,
         role: 'assistant',
         text: response.reply,
-        language: response.language || currentLang,
+        language: response.language || detectedLang,
         mlRiskAssessment: response.mlRiskAssessment,
         createdAt: new Date().toISOString()
       };
